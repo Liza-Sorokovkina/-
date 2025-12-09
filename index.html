@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Урок: Списки v-for</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <style>
+    /* Немного красоты, чтобы не было скучно */
+    body { font-family: sans-serif; padding: 20px; }
+    ul { list-style-type: none; padding: 0; }
+    li { background: #f4f4f4; margin: 5px 0; padding: 10px; border-radius: 4px; }
+    button { margin-left: 10px; cursor: pointer; }
+    input { padding: 5px; }
+  </style>
+</head>
+<body>
+  
+  <div id="app">
+    <h2>Мой список задач ({{ tasks.length }})</h2>
+
+    <!-- Поле ввода новой задачи -->
+    <input v-model="newTask" placeholder="Что нужно сделать?" @keyup.enter="addTask">
+    <button @click="addTask">Добавить</button>
+
+    <ul>
+      <!-- 
+         v-for="task in tasks" — это цикл. 
+         Он берет каждую задачу (task) из массива tasks 
+         и создает для неё отдельный <li>
+      -->
+      <li v-for="(task, index) in tasks" :key="task.id">
+        <!-- Выводим текст задачи -->
+        {{ index + 1 }}. {{ task.text }}
+        
+        <!-- Кнопка удаления (передаем индекс элемента) -->
+        <button @click="removeTask(index)" style="float: right; color: red;">X</button>
+      </li>
+    </ul>
+
+    <p v-if="tasks.length === 0">Список пуст! Добавьте что-нибудь.</p>
+  </div>
+
+  <script>
+    const { createApp, ref } = Vue;
+
+    createApp({
+      setup() {
+        // 1. Создаем реактивный массив задач
+        // ref([...]) делает массив реактивным — Vue следит за ним
+        const tasks = ref([
+          { id: 1, text: 'Изучить Vue.js' },
+          { id: 2, text: 'Сделать зарядку' },
+          { id: 3, text: 'Купить хлеб' }
+        ]);
+
+        // 2. Переменная для текста новой задачи
+        const newTask = ref('');
+
+        // 3. Функция добавления задачи
+        const addTask = () => {
+          if (newTask.value.trim() !== '') {
+            tasks.value.push({
+              id: Date.now(), // генерируем уникальный ID
+              text: newTask.value
+            });
+            newTask.value = ''; // очищаем поле ввода
+          }
+        };
+
+        // 4. Функция удаления задачи
+        const removeTask = (index) => {
+          tasks.value.splice(index, 1); // удаляем 1 элемент по индексу
+        };
+
+        // Возвращаем всё, что хотим использовать в HTML
+        return {
+          tasks,
+          newTask,
+          addTask,
+          removeTask
+        };
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>
