@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>GitHub User Profile</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
+
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body style="padding: 20px;">
+
+  <div id="app">
+   
+    <github-user-card username="danielkellyio"></github-user-card>
+    
+    
+    <github-user-card username="yyx990803"></github-user-card> 
+  </div>
+
+  <script>
+    const app = Vue.createApp({});
+
+    app.component('github-user-card', {
+    
+      props: {
+        username: {
+          type: String,
+          required: true
+        }
+      },
+
+      data() {
+        return {
+          user: null
+        }
+      },
+
+      async created() {
+        const response = await fetch(`https://api.github.com/users/${this.username}`);
+      
+        const data = await response.json();
+        this.user = data;
+      },
+       template: `
+        <!-- v-if="user" нужен, чтобы не рисовать карточку, пока данные не загрузились -->
+        <div class="ui card" v-if="user" style="margin-bottom: 20px;">
+          <div class="image">
+            <!-- v-bind:src (или :src) для картинки -->
+            <img :src="user.avatar_url">
+          </div>
+          <div class="content">
+            <a :href="user.html_url" class="header">{{ user.name || user.login }}</a>
+            <div class="meta">
+              <span class="date">Регистрация: {{ new Date(user.created_at).toLocaleDateString() }}</span>
+            </div>
+            <div class="description">
+              {{ user.bio ? user.bio : 'Нет описания' }}
+            </div>
+          </div>
+          <div class="extra content">
+            <a>
+              <i class="user icon"></i>
+              {{ user.followers }} Подписчиков
+            </a>
+          </div>
+        </div>
+        
+        <!-- Если данные еще грузятся, покажем текст -->
+        <div v-else class="ui card">
+            <div class="content">Загрузка...</div>
+        </div>
+      `
+    });
+
+    app.mount('#app');
+  </script>
+</body>
+</html>

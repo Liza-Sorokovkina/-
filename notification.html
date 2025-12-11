@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Vue Notification Component</title>
+  <!-- Подключаем Semantic UI для красивых стилей (message, success, error) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  
+  <style>
+    /* Немного отступа, чтобы было видно */
+    body { padding: 50px; }
+  </style>
+</head>
+<body>
+
+  <div id="app">
+    <!-- 4. ИСПОЛЬЗОВАНИЕ КОМПОНЕНТА -->
+    <!-- Мы создаем три разных уведомления, просто передавая разные props -->
+    
+    <!-- Тип 'success' (зеленое) -->
+    <notification-message type="success" header="Успех!">
+      Ваш аккаунт был успешно создан.
+    </notification-message>
+
+    <!-- Тип 'error' (красное) -->
+    <notification-message type="error" header="Ошибка!">
+      Неверный пароль. Попробуйте снова.
+    </notification-message>
+
+    <!-- Тип 'info' (синее/голубое) -->
+    <notification-message type="info" header="Информация">
+      Завтра сервер будет перезагружен в 12:00.
+    </notification-message>
+  </div>
+
+  <script>
+    const app = Vue.createApp({});
+
+    // 1. СОЗДАНИЕ КОМПОНЕНТА
+    app.component('notification-message', {
+      // PROPS: Что мы принимаем снаружи
+      props: {
+        type: {
+          type: String,
+          default: 'info' // Если тип не указан, будет 'info' по умолчанию
+        },
+        header: {
+          type: String,
+          default: 'Notification'
+        }
+      },
+
+      // DATA: Внутреннее состояние (скрыто или показано)
+      data() {
+        return {
+          hidden: false // По умолчанию сообщение видно
+        }
+      },
+
+      // METHODS: Действия компонента
+      methods: {
+        hideMessage() {
+          this.hidden = true; // Просто меняем переменную, и Vue сам скроет элемент
+        }
+      },
+
+      // TEMPLATE: Шаблон
+      // Обрати внимание на :class="type". Это добавляет класс (success/error/info) к основному классу ui message.
+      template: `
+        <div class="ui message" :class="type" v-if="!hidden">
+          
+          <!-- Кнопка "Закрыть" (крестик). При клике вызываем метод hideMessage -->
+          <i class="close icon" @click="hideMessage"></i>
+          
+          <div class="header">
+            {{ header }}
+          </div>
+          
+          <!-- SLOT: Сюда попадет то, что написано МЕЖДУ тегами <notification-message>...текст...</notification-message> -->
+          <slot></slot>
+        </div>
+      `
+    });
+
+    app.mount('#app');
+  </script>
+</body>
+</html>
